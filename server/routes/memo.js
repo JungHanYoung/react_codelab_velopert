@@ -183,7 +183,9 @@ router.put('/:id', (req, res) => {
             return res.json({
                 success: true,
                 memo
-            })
-        })
-    })
-})
+            });
+        });
+    });
+});
+
+export default router;
