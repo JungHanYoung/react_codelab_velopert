@@ -76,14 +76,14 @@ export default function authentication(state, action) {
         case types.AUTH_GET_STATUS_SUCCESS:
             return update(state, {
                 status: {
-                    vaild: { $set: true },
+                    valid: { $set: true },
                     currentUser: { $set: action.username }
                 }
             });
         case types.AUTH_GET_STATUS_FAILURE:
             return update(state, {
                 status: {
-                    vaild: { $set: false },
+                    valid: { $set: false },
                     isLoggedIn: { $set: false }
                 }
             });

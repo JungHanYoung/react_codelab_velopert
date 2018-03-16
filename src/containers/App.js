@@ -2,8 +2,17 @@ import React, { Component } from 'react';
 import { Header } from '../components';
 import { connect } from 'react-redux';
 import { getStatusRequest, logoutRequest } from '../actions/authentication';
+import { Route } from 'react-router-dom';
+
+import Home from './Home';
 
 class App extends Component {
+
+    constructor(props){
+        super(props);
+
+        this.handleLogout = this.handleLogout.bind(this);
+    }
 
     componentDidMount() {
         function getCookie(name) {
@@ -53,7 +62,7 @@ class App extends Component {
     handleLogout() {
         this.props.logoutRequest().then(
             () => {
-                Material.toast('Good Bye!', 2000);
+                Materialize.toast('Good Bye!', 2000);
 
                 // EMPTIES THE SESSION
                 let loginData = {
@@ -76,7 +85,7 @@ class App extends Component {
                 { isAuth ? undefined : <Header 
                                             isLoggedIn={this.props.status.isLoggedIn}
                                             onLogout={this.handleLogout}/>}
-                { this.props.children }
+                <Home />
             </div>
         );
     }
