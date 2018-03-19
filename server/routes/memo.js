@@ -231,7 +231,64 @@ router.get('/:listType/:id', (req, res) => {
             return res.json(memos);
         })
     }
-})
+});
+
+router.post('/star/:id', (req, res) => {
+    // CHECK MEMO ID VALIDITY
+    if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+        return res.status(400).json({
+            error: "INVALID ID",
+            code: 1
+        });
+    }
+
+    // CHECK LOGIN STATUS
+    if(typeof req.session.loginInfo === "undefined") {
+        return res.status(403).json({
+            error: "NOT LOGGED IN",
+            code: 2
+        });
+    }
+
+    // FIND MEMO
+    Memo.findById(req.params.id, (err, memo) => {
+        if(err) throw err;
+
+        // MEMO DOES NOT EXIST
+        if(!memo) {
+            res.status(404).json({
+                error: "NO RESOURCE",
+                code: 3
+            });
+        }
+
+        // GET INDEX OF USERNAME IN THE ARRAY
+        // 스타를 준 유저가 중복되는지 indexOf로 확인
+        let index = memo.starred.indexOf(req.session.loginInfo.username);
+
+        // CHECK WHETHER THE USER ALREADY HAS GIVEN A STAR
+        // 해당되는 유저가 없을 시 indexOf는 -1을 리턴.
+        let hasStarred = (index === -1) ? false : true;
+
+        if(!hasStarred) {
+            // IF IT DOES NOT EXIST
+            memo.starred.push(req.session.loginInfo.username);
+        } else {
+            // ALREADY starred
+            memo.starred.splice(index, 1);
+        }
+
+        // SAVE THE MEMO
+        memo.save((err, memo) => {
+            if(err) throw err;
+            res.json({
+                success: true,
+                'has_starred': !hasStarred,
+                memo
+            });
+        });
+    });
+});
 
 
 

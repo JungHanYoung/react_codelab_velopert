@@ -14,6 +14,22 @@ class Memo extends Component {
         this.toggleEdit = this.toggleEdit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleRemove = this.handleRemove.bind(this);
+        this.handleStar = this.handleStar.bind(this);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        let current = {
+            props: this.props,
+            state: this.state
+        };
+
+        let next = {
+            props: nextProps,
+            state: nextState
+        };
+
+        let update = JSON.stringify(current) !== JSON.stringify(next);
+        return update;
     }
 
     toggleEdit(){
@@ -47,8 +63,14 @@ class Memo extends Component {
         this.props.onRemove(id, index);
     }
 
-    render() {
+    handleStar(){
+        let id = this.props.data._id;
+        let index = this.props.index;
+        this.props.onStar(id, index);
+    }
 
+    render() {
+        
         const { data, ownership } = this.props;
 
         const dropDownMenu = (
@@ -70,6 +92,8 @@ class Memo extends Component {
             <span style={{color: '#AAB5BC'}}> . Edited <TimeAgo date={data.date.edited} live={true}/></span>
         )
 
+        let starStyle = (this.props.data.starred.indexOf(this.props.currentUser) > -1) ? { color: '#FF9980' } : {};
+
         const memoView = (
             <div className="card">
                 <div className="info">
@@ -81,7 +105,9 @@ class Memo extends Component {
                     {data.contents}
                 </div>
                 <div className="footer">
-                    <i className="material-icons log-footer-icon star icon-button">star</i>
+                    <i className="material-icons log-footer-icon star icon-button"
+                        style={starStyle}
+                        onClick={this.handleStar}>star</i>
                     <span className="star-count">{data.starred.length}</span>
                 </div>
             </div>
@@ -133,7 +159,9 @@ Memo.propTypes = {
     ownership: propTypes.bool,
     index: propTypes.number,
     onEdit: propTypes.func,
-    onRemove: propTypes.func
+    onRemove: propTypes.func,
+    onStar: propTypes.func,
+    currentUser: propTypes.string
 }
 
 Memo.defaultProps = {
@@ -155,7 +183,11 @@ Memo.defaultProps = {
     },
     onRemove: (id, index) => {
         console.error('onRemove function not defined');
-    }
+    },
+    onStar: (id, index) => {
+        console.error('onStar function not defined');
+    },
+    currentUser: 'CurrentUser'
 }
 
 export default Memo;

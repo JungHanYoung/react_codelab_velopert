@@ -9,8 +9,13 @@ class MemoList extends Component {
         // console.log('MemoList props : ');
         // console.log(props);
     }
-    render() {
 
+    shouldComponentUpdate(nextProps, nextState) {
+        let update = JSON.stringify(this.props) !== JSON.stringify(nextProps);
+        return update;
+    }
+    render() {
+        //console.log('MemoList render method executed');
         const mapToComponents = data => {
             return data.map((memo, i) => {
                 //console.log(memo._id);
@@ -21,6 +26,8 @@ class MemoList extends Component {
                         index={i}
                         onEdit={this.props.onEdit}
                         onRemove={this.props.onRemove}
+                        onStar={this.props.onStar}
+                        currentUser={this.props.currentUser}
                         key={memo._id}
                     />
                 );
@@ -44,7 +51,8 @@ MemoList.propTypes = {
     data: propTypes.array,
     currentUser: propTypes.string,
     onEdit: propTypes.func,
-    onRemove: propTypes.func
+    onRemove: propTypes.func,
+    onStar: propTypes.func
 }
 
 MemoList.defaultProps = {
@@ -55,6 +63,9 @@ MemoList.defaultProps = {
     },
     onRemove: (id, index) => {
         console.error('remove function not defined');
+    },
+    onStar: (id, index) => {
+        console.error('star function not defined');
     }
 }
 
