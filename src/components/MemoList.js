@@ -19,12 +19,13 @@ class MemoList extends Component {
                         ownership={(memo.writer === this.props.currentUser)}
                         index={i}
                         onEdit={this.props.onEdit}
+                        onRemove={this.props.onRemove}
                         key={memo._id}
                     />
                 );
             })
         };
-        
+
         return (
             <div>
                 {mapToComponents(this.props.data)}
@@ -36,14 +37,18 @@ class MemoList extends Component {
 MemoList.propTypes = {
     data: propTypes.array,
     currentUser: propTypes.string,
-    onEdit: propTypes.func
+    onEdit: propTypes.func,
+    onRemove: propTypes.func
 }
 
 MemoList.defaultProps = {
     data: [],
     currentUser: '',
     onEdit: (id, index, contents) => {
-        console.error('edit function not defined')
+        console.error('edit function not defined');
+    },
+    onRemove: (id, index) => {
+        console.error('remove function not defined');
     }
 }
 

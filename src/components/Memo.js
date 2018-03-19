@@ -13,6 +13,7 @@ class Memo extends Component {
         };
         this.toggleEdit = this.toggleEdit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleRemove = this.handleRemove.bind(this);
     }
 
     toggleEdit(){
@@ -40,6 +41,12 @@ class Memo extends Component {
         })
     }
 
+    handleRemove(){
+        let id = this.props.data._id;
+        let index = this.props.index;
+        this.props.onRemove(id, index);
+    }
+
     render() {
 
         const { data, ownership } = this.props;
@@ -53,7 +60,7 @@ class Memo extends Component {
                 </a>
                 <ul id={`dropdown-${data._id}`} className="dropdown-content">
                     <li><a onClick={this.toggleEdit}>Edit</a></li>
-                    <li><a>Remove</a></li>
+                    <li><a onClick={this.handleRemove}>Remove</a></li>
                 </ul>
             </div>
         );
@@ -125,7 +132,8 @@ Memo.propTypes = {
     data: propTypes.object,
     ownership: propTypes.bool,
     index: propTypes.number,
-    onEdit: propTypes.func
+    onEdit: propTypes.func,
+    onRemove: propTypes.func
 }
 
 Memo.defaultProps = {
@@ -144,6 +152,9 @@ Memo.defaultProps = {
     index: -1,
     onEdit: (id, index, contents) => {
         console.error('onEdit function not defined');
+    },
+    onRemove: (id, index) => {
+        console.error('onRemove function not defined');
     }
 }
 

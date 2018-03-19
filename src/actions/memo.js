@@ -7,7 +7,10 @@ import {
     MEMO_LIST_FAILURE,
     MEMO_EDIT,
     MEMO_EDIT_SUCCESS,
-    MEMO_EDIT_FALIURE
+    MEMO_EDIT_FALIURE,
+    MEMO_REMOVE_SUCCESS,
+    MEMO_REMOVE,
+    MEMO_REMOVE_FAILURE
 } from './ActionTypes';
 import axios from 'axios';
 
@@ -141,4 +144,51 @@ export function memoEditFailure(error){
         type: MEMO_EDIT_FALIURE,
         error
     }
+}
+
+/**
+ *  MEMO REMOVE
+ * @param { string } id 삭제할 데이터의 DB primary key
+ * @param { number } index 삭제가 성공했을 때 redux-store에 제거할 데이터의 인덱스
+ */
+export function memoRemoveRequest(id, index){
+    return (dispatch) => {
+        // to be implemented ..
+        dispatch(memoRemove());
+
+        return axios.delete(`/api/memo/${id}`)
+        .then((response) => {
+            dispatch(memoRemoveSuccess(index));
+        }).catch((error) => {
+            dispatch(memoRemoveFailure(error.response.data.code));
+        });
+    }
+}
+
+export function memoRemove() {
+    return {
+        type: MEMO_REMOVE
+    };
+}
+
+/**
+ * 
+ * @param { number } index 삭제된 데이터의 인덱스
+ */
+export function memoRemoveSuccess(index) {
+    return {
+        type: MEMO_REMOVE_SUCCESS,
+        index
+    };
+}
+
+/**
+ * 
+ * @param { number } error 에러 코드
+ */
+export function memoRemoveFailure(error) {
+    return {
+        type: MEMO_REMOVE_FAILURE,
+        error
+    };
 }
