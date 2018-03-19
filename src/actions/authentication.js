@@ -55,7 +55,12 @@ export function loginFailure() {
     };
 }
 
-/* REGISTER */
+
+/**
+ * REGISTER
+ * @param { string } username username(id)
+ * @param { string } password password
+ */
 export function registerRequest(username, password) {
     return (dispatch) => {
         // To be implemented

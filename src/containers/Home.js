@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Write, MemoList } from '../components';
-import { memoPostRequest, memoListRequest } from '../actions/memo';
+import { 
+    memoPostRequest,
+    memoListRequest,
+    memoEditRequest } from '../actions/memo';
 
 class Home extends Component {
 
@@ -9,25 +12,46 @@ class Home extends Component {
         super(props);
 
         this.state = {
-
+            loadingState: false
         }
 
         this.handlePost = this.handlePost.bind(this);
         this.loadNewMemo = this.loadNewMemo.bind(this);
+        this.loadOldMemo = this.loadOldMemo.bind(this);
+        this.handleEdit = this.handleEdit.bind(this);
     }
 
     componentDidMount() {
         // LOAD NEW MEMO EVERY 5 SECONDS
+        // 5초마다 새로운 메모를 로드한다.
         const loadMemoLoop = () => {
             this.loadNewMemo().then(
                 () => {
                     this.memoLoaderTimeoutId = setTimeout(loadMemoLoop, 5000);
                 }
-            )
+            );
         }
-
+        
+        const loadUntilScrollable = () => {
+            // IF THE SCROLLBAR DOES NOT EXIST
+            // 만약 스크롤바가 없다면
+            // body태그가 window창보다 작으면 스크롤바가 없는 것이므로
+            if($("body").height() < $(window).height()) {
+                this.loadOldMemo().then(
+                    () => {
+                        // DO THIS RECURSIVELY UNLESS IT'S LAST PAGE
+                        // 마지막 메모가 아닌 한 스크롤바가 생길때까지 예전 메모를 로딩하는거지.
+                        // 그러면 데이터가 늘어나 스크롤바가 생기겠지?
+                        if(!this.props.isLast) {
+                            loadUntilScrollable();
+                        }
+                    }
+                )
+            }
+        };
         this.props.memoListRequest(true).then(
             () => {
+                loadUntilScrollable();
                 // BEGIN NEW MEMO LOADING LOOP
                 loadMemoLoop();
             }
@@ -36,18 +60,35 @@ class Home extends Component {
         $(window).scroll(() => {
             // WHEN HEIGHT UNDER SCROLLBOTTOM IS LESS THEN 250
             if($(document).height() - $(window).height() - $(window).scrollTop() < 250) {
+                if(!this.state.loadingState){
+                    this.loadOldMemo();
+                    this.setState({
+                        loadingState: true
+                    });
+                } else{
+                    if(this.state.loadingState) {
+                        this.setState({
+
+                        })
+                    }
+                }
                 console.log('LOAD NOW');
             }
         });
+
     }
 
     componentWillUnmount() {
         // STOPS THE loadMemoLoop
         clearTimeout(this.memoLoaderTimeoutId);
+
+        // REMOVE WINDOWS SCROLL LISTENER
+        $(window).unbind();
     }
 
     loadNewMemo() {
         // CANCEL IF THERE IF A PENDING REQUEST
+        // 
         if(this.props.listStatus === 'WAITING')
             return new Promise((resolve, reject) => {
                 resolve();
@@ -122,6 +163,43 @@ class Home extends Component {
         );
     }
 
+    handleEdit(id, index, contents){
+        return this.props.memoEditRequest(id, index, contents).then(
+            () => {
+                if(this.props.editStatus.status === "SUCCESS") {
+                    Materialize.toast('Success!', 2000);
+                } else {
+                    /**
+                     * ERROR CODES
+                     *  1: INVALID ID,
+                     *  2: EMPTY CONTENTS
+                     *  3: NOT LOGGED IN
+                     *  4: NO RESOURCE
+                     *  5: PERMISSION FAILURE
+                     */
+                    let errorMessage = [
+                        'Something broke',
+                        'Please write something',
+                        'You are not logged in',
+                        'That memo does not exist anymore',
+                        'You do not have permission'
+                    ];
+
+                    let error = this.props.editStatus.error;
+
+                    // NOTIFY ERROR
+                    let $toastContent = $(`<span style="color: #FFB4BA">${errorMessage[error - 1]}</span>`);
+                    Materialize.toast($toastContent, 2000);
+
+                    // IF NOT LOGGED IN, REFRESH THE PAGE AFTER 2 SECONDS
+                    if(error === 3) {
+                        setTimeout(() => {location.reload(false)}, 2000);
+                    }
+                }
+            }
+        )
+    }
+
     render() {
 
         const write = (<Write onPost={this.handlePost}/>);
@@ -129,7 +207,11 @@ class Home extends Component {
         return (
             <div className="wrapper">
                 {this.props.isLoggedIn? write : undefined}
-                <MemoList data={this.props.memoData} currentUser={this.props.currentUser}/>
+                <MemoList 
+                    data={this.props.memoData}
+                    currentUser={this.props.currentUser}
+                    onEdit={this.handleEdit}
+                />
             </div>
         );
     }
@@ -141,7 +223,9 @@ const mapStateToProps = (state) => {
         postStatus: state.memo.post,
         currentUser: state.authentication.status.currentUser,
         memoData: state.memo.list.data,
-        listStatus: state.memo.list.status
+        listStatus: state.memo.list.status,
+        isLast: state.memo.list.isLast,
+        editStatus: state.memo.edit
     };
 }
 
@@ -152,6 +236,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         memoListRequest: (isInitial, listType, id, username) => {
             return dispatch(memoListRequest(isInitial, listType, id, username));
+        },
+        memoEditRequest: (id, index, contents) => {
+            return dispatch(memoEditRequest(id, index, contents));
         }
     };
 }

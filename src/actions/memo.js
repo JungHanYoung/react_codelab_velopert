@@ -4,11 +4,17 @@ import {
     MEMO_POST_FAILURE,
     MEMO_LIST,
     MEMO_LIST_SUCCESS,
-    MEMO_LIST_FAILURE
+    MEMO_LIST_FAILURE,
+    MEMO_EDIT,
+    MEMO_EDIT_SUCCESS,
+    MEMO_EDIT_FALIURE
 } from './ActionTypes';
 import axios from 'axios';
 
-/* MEMO POST */
+/**
+ * 
+ * @param { string } contents 
+ */
 export function memoPostRequest(contents) {
     return (dispatch) => {
         // to be implemented ..
@@ -45,12 +51,10 @@ export function memoPostFailure(error){
 
 /**
  * MEMO LIST
- * 
- * Parameter:
- *      - isInitial: whether it is for initial loading
- *      - listType:  OPTIONAL; loading 'old' memo or 'new' memo
- *      - id:        OPTIONAL; memo id (one at the bottom or one at the top)
- *      - username:  OPTIONAL; find memos of following user
+ * @param { boolean } isInitial : whether it is for initial loading
+ * @param { string } listType  : OPTIONAL; loading 'old' memo or 'new' memo
+ * @param { string } id        : OPTIONAL; memo id (one at the bottom or one at the top)
+ * @param { string } username  : OPTIONAL; find memos of following user
  */
 export function memoListRequest(isInitial, listType, id, username){
     return (dispatch) => {
@@ -96,5 +100,45 @@ export function memoListSuccess(data, isInitial, listType) {
 export function memoListFailure() {
     return {
         type: MEMO_LIST_FAILURE
+    }
+}
+/**
+ * 
+ * @param { string } id 데이터베이스에 있는 메모 기본키
+ * @param { number } index 바꿀 메모를 지정하기 위한 인덱스
+ * @param { string } contents 바뀐 메모의 내용
+ */
+export function memoEditRequest(id, index, contents) {
+    return (dispatch) => {
+        // to be implemented ..
+        dispatch(memoEdit());
+
+        return axios.put(`/api/memo/${id}`, { contents })
+        .then((response) => {
+            dispatch(memoEditSuccess(index, response.data.memo));
+        }).catch((error) => {
+            dispatch(memoEditFailure(error.response.data.code));
+        })
+    }
+}
+
+export function memoEdit(){
+    return {
+        type: MEMO_EDIT
+    }
+}
+
+export function memoEditSuccess(index, memo){
+    return {
+        type: MEMO_EDIT_SUCCESS,
+        index,
+        memo
+    }
+}
+
+export function memoEditFailure(error){
+    return {
+        type: MEMO_EDIT_FALIURE,
+        error
     }
 }
