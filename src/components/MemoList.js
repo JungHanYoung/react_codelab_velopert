@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import Memo from './Memo';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 class MemoList extends Component {
     constructor(props){
@@ -28,7 +29,12 @@ class MemoList extends Component {
 
         return (
             <div>
-                {mapToComponents(this.props.data)}
+                <ReactCSSTransitionGroup
+                    transitionName="memo"
+                    transitionEnterTimeout={2000}
+                    transitionLeaveTimeout={1000}>
+                    {mapToComponents(this.props.data)}
+                </ReactCSSTransitionGroup>
             </div>
         );
     }
