@@ -290,6 +290,57 @@ router.post('/star/:id', (req, res) => {
     });
 });
 
+router.get('/:username', (req, res) => {
+    Memo.find({writer: req.params.username})
+    .sort({"_id": -1})
+    .limit(6)
+    .exec((err, memos) => {
+        if(err) throw err;
+        res.json(memos);
+    });
+});
+
+router.get('/:username/:listType/:id', (req, res) => {
+    let listType = req.params.listType;
+    let id = req.params.id;
+
+    // CHECK LIST TYPE VALIDITY
+    if(listType !== 'old' && listType !== 'new'){
+        return res.status(400).json({
+            error: "INVALID LISTTYPE",
+            code: 1
+        });
+    }
+
+    // CHECK MEMO ID VALIDITY
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(400).json({
+            error: "INVALID ID",
+            code: 2
+        });
+    }
+
+    let objId = new mongoose.Types.ObjectId(id);
+
+    if(listType === 'new'){
+        Memo.find({ writer: req.params.username, _id: { $gt: objId } })
+        .sort({ _id: -1 })
+        .limit(6)
+        .exec((err, memos) => {
+            if(err) throw err;
+            res.json(memos);
+        })
+    } else {
+        Memo.find({ writer: req.params.username, _id: { $lt: objId } })
+        .sort({ _id: -1})
+        .limit(6)
+        .exec((err, memos) => {
+            if(err) throw err;
+            res.json(memos);
+        })
+    }
+})
+
 
 
 export default router;

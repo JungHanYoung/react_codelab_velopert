@@ -8,14 +8,16 @@ import {
     memoRemoveRequest,
     memoStarRequest } from '../actions/memo';
 
+
 class Home extends Component {
 
     constructor(props){
         super(props);
 
         this.state = {
-            loadingState: false
-        }
+            loadingState: false,
+            initiallyLoaded: false
+        };
 
         this.handlePost = this.handlePost.bind(this);
         this.loadNewMemo = this.loadNewMemo.bind(this);
@@ -53,11 +55,15 @@ class Home extends Component {
                 )
             }
         };
-        this.props.memoListRequest(true).then(
+        this.props.memoListRequest(true, undefined, undefined, this.props.username).then(
             () => {
-                loadUntilScrollable();
+                // LOAD MEMO UNTIL SCROLLABLE
+                setTimeout(loadUntilScrollable, 1000);
                 // BEGIN NEW MEMO LOADING LOOP
                 loadMemoLoop();
+                this.setState({
+                    initiallyLoaded: true
+                });
             }
         )
 
@@ -72,8 +78,8 @@ class Home extends Component {
                 } else{
                     if(this.state.loadingState) {
                         this.setState({
-
-                        })
+                            loadingState: false
+                        });
                     }
                 }
                 console.log('LOAD NOW');
@@ -82,12 +88,23 @@ class Home extends Component {
 
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if(this.props.username !== prevProps.username) {
+            this.componentWillUnmount();
+            this.componentDidMount();
+        }
+    }
+
     componentWillUnmount() {
         // STOPS THE loadMemoLoop
         clearTimeout(this.memoLoaderTimeoutId);
 
         // REMOVE WINDOWS SCROLL LISTENER
         $(window).unbind();
+
+        this.setState({
+            initiallyLoaded: false
+        });
     }
 
     loadNewMemo() {
@@ -100,9 +117,9 @@ class Home extends Component {
         
         // IF PAGE IS EMPTY, DO THE INITIAL LOADING
         if(this.props.memoData.length === 0)
-            return this.props.memoListRequest(true);
+            return this.props.memoListRequest(true, undefined, undefined, this.props.username);
 
-        return this.props.memoListRequest(false, 'new', this.props.memoData[0]._id);
+        return this.props.memoListRequest(false, 'new', this.props.memoData[0]._id, this.props.username);
     }
 
     loadOldMemo() {
@@ -280,14 +297,39 @@ class Home extends Component {
             }
         })
     }
+    
 
     render() {
 
+        console.log(this.props.memoData);
+
         const write = (<Write onPost={this.handlePost}/>);
+
+        const emptyView = (
+            <div className="container">
+                <div className="empty-page">
+                    <b>{ this.props.username }</b> isn't registered or hasn't written any memo
+                </div>
+            </div>
+        );
+
+        const wallHeader = (
+            <div>
+                <div className="container wall-info">
+                    <div className="card wall-info blue lighten-2 white-text">
+                        <div className="card-content">
+                            { this.props.username }
+                        </div>
+                    </div>
+                </div>
+                { this.props.memoData.length === 0 && this.state.initiallyLoaded ? emptyView : undefined }
+            </div>
+        );
 
         return (
             <div className="wrapper">
-                {this.props.isLoggedIn? write : undefined}
+                { typeof this.props.username !== "undefined" ? wallHeader : undefined }
+                {this.props.isLoggedIn && typeof this.props.username === "undefined"? write : undefined}
                 <MemoList 
                     data={this.props.memoData}
                     currentUser={this.props.currentUser}
@@ -333,5 +375,15 @@ const mapDispatchToProps = (dispatch) => {
         }
     };
 }
+
+import propTypes from 'prop-types';
+
+Home.propTypes = {
+    username: propTypes.string
+};
+
+Home.defaultTypes = {
+    username: undefined
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

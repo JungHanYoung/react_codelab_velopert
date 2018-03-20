@@ -2,9 +2,12 @@ import React, { Component } from 'react';
 import { Header } from '../components';
 import { connect } from 'react-redux';
 import { getStatusRequest, logoutRequest } from '../actions/authentication';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 import Home from './Home';
+import Wall from './Wall';
+import Login from './Login';
+import Register from './Register';
 
 class App extends Component {
 
@@ -12,6 +15,7 @@ class App extends Component {
         super(props);
 
         this.handleLogout = this.handleLogout.bind(this);
+        this.handleSearch = this.handleSearch.bind(this);
     }
 
     componentDidMount() {
@@ -75,27 +79,51 @@ class App extends Component {
         )
     }
 
+    handleSearch(keyword){
+        //console.log(keyword)
+        this.props.searchRequest(keyword)
+    }
+
     render() {
         /* Check whethe current route is login or register using regex */
         let re = /(login|register)/;
         let isAuth = re.test(this.props.location.pathname);
 
-        return (
+        console.log(this.props.match.url);
+        console.log(this.props.history);
+        
+        const Authentication = (
             <div>
-                { isAuth ? undefined : <Header 
-                                            isLoggedIn={this.props.status.isLoggedIn}
-                                            onLogout={this.handleLogout}/>}
-                <Home />
+                <Route path={`${this.props.match.url}login`} component={ Login }/>
+                <Route path={`${this.props.match.url}register`} component={ Register } />
             </div>
         );
+
+        const other = (
+            <div>
+                <Header 
+                    isLoggedIn={this.props.status.isLoggedIn}
+                    onLogout={this.handleLogout}
+                    onSearch={this.handleSearch}
+                    usernames={this.props.usernames}
+                    history={this.props.history}/>
+                    <Route path={`${this.props.match.url}wall`} component={Wall}/>
+                    <Route exact path="/" component={Home} />
+            </div>
+        );
+
+        return (isAuth ? Authentication : other);
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        status: state.authentication.status
+        status: state.authentication.status,
+        usernames: state.search.usernames
     };
 };
+
+import { searchRequest } from '../actions/search';
 
 const mapDispatchToProps = (dispatch) => {
     return {
@@ -104,6 +132,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         logoutRequest: () => {
             return dispatch(logoutRequest());
+        },
+        searchRequest: (keyword) => {
+            return dispatch(searchRequest(keyword));
         }
     };
 }
