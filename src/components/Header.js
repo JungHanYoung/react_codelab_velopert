@@ -39,7 +39,6 @@ class Header extends Component {
             </li>
         );
 
-        console.log('Header : ' + this.props.history);
 
         return (
             <div>

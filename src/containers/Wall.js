@@ -7,7 +7,6 @@ class Wall extends Component {
     render() {
         const { match, location } = this.props;
         const { username } = queryString.parse(location.search);
-        console.log(username);
         return (
             <Home username={ username }/>
         );

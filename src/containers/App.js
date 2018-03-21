@@ -43,7 +43,6 @@ class App extends Component {
         // check whether this cookie is valid or not
         this.props.getStatusRequest().then(
             () => {
-                console.log(this.props.status);
                 // if session is not valid
                 if(!this.props.status.valid){
                     // logout the session
@@ -88,10 +87,7 @@ class App extends Component {
         /* Check whethe current route is login or register using regex */
         let re = /(login|register)/;
         let isAuth = re.test(this.props.location.pathname);
-
-        console.log(this.props.match.url);
-        console.log(this.props.history);
-        
+       
         const Authentication = (
             <div>
                 <Route path={`${this.props.match.url}login`} component={ Login }/>
