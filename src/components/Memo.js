@@ -7,7 +7,6 @@ class Memo extends Component {
 
     constructor(props){
         super(props);
-        console.log(props);
         this.state = {
             editMode: false,
             value: props.data.contents

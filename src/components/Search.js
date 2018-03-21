@@ -40,14 +40,14 @@ class Search extends Component {
 
     handleSearch(keyword) {
         // to be implemented ..
-        console.log(keyword);
+        //console.log(keyword);
         this.props.onSearch(keyword);
     }
 
     handleKeyDown(e) {
         // IF PRESSED ENTER, TRIGGER TO NAVIGATE TO THE FIRST USER SHOWN
         if(e.keyCode === 13) {
-            console.log(this.props.history);
+            //console.log(this.props.history);
             if(this.props.usernames.length > 0) {
                 this.props.history.push(`/wall?username=${this.props.usernames[0].username}`);
                 this.handleClose();
@@ -62,7 +62,9 @@ class Search extends Component {
             // create LINKS to '/wall?username={username}'
             return data.map((user, i) => {
                 return (
-                    <li key={i} onClick={this.handleClose}><Link to={`/wall?username=${user.username}`}
+                    <li key={i}><Link 
+                        to={`/wall?username=${user.username}`}
+                        onClick={this.handleClose}
                         >{user.username}</Link></li>
                 );
             });

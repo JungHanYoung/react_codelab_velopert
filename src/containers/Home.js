@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { HashLoader } from 'react-spinners';
 import { Write, MemoList } from '../components';
 import { 
     memoPostRequest,
@@ -25,6 +26,18 @@ class Home extends Component {
         this.handleEdit = this.handleEdit.bind(this);
         this.handleRemove = this.handleRemove.bind(this);
         this.handleStar = this.handleStar.bind(this);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        const prev = {
+            memoData: this.props.memoData,
+            listStatus: this.props.listStatus
+        };
+        const next = {
+            memoData: nextProps.memoData,
+            listStatus: nextProps.listStatus
+        }
+        return JSON.stringify(prev) !== JSON.stringify(next);
     }
 
     componentDidMount() {
@@ -65,12 +78,12 @@ class Home extends Component {
                     initiallyLoaded: true
                 });
             }
-        )
+        );
 
         $(window).scroll(() => {
             // WHEN HEIGHT UNDER SCROLLBOTTOM IS LESS THEN 250
             if($(document).height() - $(window).height() - $(window).scrollTop() < 250) {
-                if(!this.state.loadingState){
+                if(!this.state.loadingState && this.props.listStatus !== 'WAITING'){
                     this.loadOldMemo();
                     this.setState({
                         loadingState: true
@@ -82,12 +95,11 @@ class Home extends Component {
                         });
                     }
                 }
-                console.log('LOAD NOW');
             }
         });
 
     }
-
+    
     componentDidUpdate(prevProps, prevState) {
         if(this.props.username !== prevProps.username) {
             this.componentWillUnmount();
@@ -301,8 +313,6 @@ class Home extends Component {
 
     render() {
 
-        console.log(this.props.memoData);
-
         const write = (<Write onPost={this.handlePost}/>);
 
         const emptyView = (
@@ -337,6 +347,12 @@ class Home extends Component {
                     onRemove={this.handleRemove}
                     onStar={this.handleStar}
                 />
+                <div className="spinner">
+                    <HashLoader 
+                        color={'#0080ED'}
+                        loading={this.props.listStatus === 'WAITING' && !this.props.isLast}
+                    />
+                </div>
             </div>
         );
     }
