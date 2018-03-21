@@ -57,7 +57,6 @@ export default function memo(state = initialState, action){
             });
         case types.MEMO_LIST_SUCCESS:
             if(action.isInitial){
-                console.log("memoList is initial");
                 return update(state, {
                     list: {
                         status: { $set: 'SUCCESS' },

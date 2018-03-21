@@ -69,8 +69,6 @@ export function memoListRequest(isInitial, listType, id, username){
 
         let url = '/api/memo';
 
-        console.log('action : ' + isInitial);
-
         if(typeof username === 'undefined'){
             // username not given, load public memo
             url = isInitial ? url : `${url}/${listType}/${id}`;
@@ -96,7 +94,6 @@ export function memoList(){
 }
 
 export function memoListSuccess(data, isInitial, listType) {
-    console.log('memoListSuccess : ' + isInitial);
     return {
         type: MEMO_LIST_SUCCESS,
         data,

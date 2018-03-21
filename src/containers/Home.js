@@ -335,7 +335,7 @@ class Home extends Component {
                 { this.props.memoData.length === 0 && this.state.initiallyLoaded ? emptyView : undefined }
             </div>
         );
-        console.log(this.props.listStatus);
+
         return (
             <div className="wrapper">
                 { typeof this.props.username !== "undefined" ? wallHeader : undefined }
